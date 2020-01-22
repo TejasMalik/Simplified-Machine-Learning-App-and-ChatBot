@@ -1,0 +1,251 @@
+{%extends "bootstrap/base.html" %}
+
+{% block content %}
+<!-- Main Content Is Here -->
+
+<style>
+  /* Button used to open the chat form - fixed at the bottom of the page */
+  .open-button {
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+    position: fixed;
+    bottom: 23px;
+    right: 28px;
+    width: 110px;
+    border-radius: 100%;
+  }
+
+  /* The popup chat - hidden by default */
+  .chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    border: 3px solid #f1f1f1;
+    z-index: 9;
+  }
+
+  /* Add styles to the form container */
+  .form-container {
+    max-width: 300px;
+    padding: 10px;
+    background-color: white;
+  }
+
+  /* Full-width textarea */
+  .form-container textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    resize: none;
+    min-height: 200px;
+  }
+
+  /* When the textarea gets focus, do something */
+  .form-container textarea:focus {
+    background-color: #ddd;
+    outline: none;
+  }
+
+  /* Set a style for the submit/send button */
+  .form-container .btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  /* Add a red background color to the cancel button */
+  .form-container .cancel {
+    background-color: red;
+  }
+
+  /* Add some hover effects to buttons */
+  .form-container .btn:hover,
+  .open-button:hover {
+    opacity: 1;
+  }
+</style>
+
+<body
+  background="https://sloanreview.mit.edu/content/uploads/2017/05/AI-DA-Bean-Artificial-Intelligence-Big-Data-Scale-1200.jpg">
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="container">
+    <div class="jumbotron" style="opacity: 0.8; transform: translate(0px, 10px);">
+      <h1 class="display-3">Simplified MLApp</h1>
+      <p>Simplify Your Machine Learning and Data Exploration</p>
+      <p><a href="{{ url_for('index')}}" type="button" class="btn btn-danger"> Refresh</a></p>
+    </div>
+  </div>
+
+
+
+  <div class="container">
+    <!-- Details Page  -->
+    <div class="row">
+      <div class="col-md-5" style="background-color:#3f76ef; opacity: 0.8;">
+        <h2>Type of Dataset</h2>
+
+        <div class="alert alert-info" role="alert">
+          <p><span style="color:red">Type</span>: {{ ml_type }}</p>
+        </div>
+        <h2>Details of Dataset</h2>
+
+        <div class="alert alert-info" role="alert">
+          <p><span style="color:red">Filename</span>: {{ filename }}</p>
+        </div>
+
+        <div class="alert alert-danger" role="alert">
+          <p><span style="color:red">Time Stamp</span>: {{ date }} </p>
+        </div>
+
+        <h2>Exploratory Data Analysis</h2>
+
+        <div class="alert alert-info" role="alert">
+          <p><span style="color:red">Size</span>: {{ df_size }}</p>
+        </div>
+        <div class="alert alert-danger" role="alert">
+          <p><span style="color:red">Shape</span>: <br />
+            (Row,Columns)<br />
+            {{ df_shape }}</p>
+        </div>
+
+        <div class="alert alert-info" role="alert">
+          <p><span style="color:red">Columns</span>:
+            {% for i in df_columns %}
+
+            <li>{{ i}}</li>
+
+            {% endfor %}
+          </p>
+        </div>
+
+        <div class="alert alert-danger" role="alert">
+          <p><span style="color:red">Target</span>: {{ df_targetname }}</p>
+        </div>
+        <h2>Model Score</h2>
+
+        {% for mlaccuracy  in model_results %}
+
+        <div class="list-group">
+          <a href="#" class="list-group-item">
+            <span style="color:red">ML Algorithm | {{ rese }} | Standard Deviation</span> </a>
+          <a href="#" class="list-group-item">{{ mlaccuracy }}</a>
+        </div>
+
+        {% endfor %}
+        <h2>Best Model for fitting</h2>
+        <div class="list-group">
+          <a href="#" class="list-group-item">
+            <span style="color:red">Best Accuracy</span> </a>
+          <a href="#" class="list-group-item">{{ best }}</a>
+        </div>
+
+
+        <h2>Confusion Matrix for Best Model</h2>
+        <div class="list-group">
+          <a href="#" class="list-group-item">
+            <span style="color:red">Confusion Matrix</span></a>
+          {% for mat_ele  in mat %}
+
+          <a href="#" class="list-group-item">{{ mat_ele }}</a>
+
+          {% endfor %}
+        </div>
+
+
+        <h2>RMSE of Best Model</h2>
+        <div class="list-group">
+          <a href="#" class="list-group-item">
+            <span style="color:red">RMSE</span> </a>
+          <a href="#" class="list-group-item">{{ rmse }}</a>
+        </div>
+
+        <h2>Classification Report of Best Model</h2>
+        <div class="list-group">
+          <a href="#" class="list-group-item">
+            <span style="color:red">Classification Report</span> </a>
+          <a href="#" class="list-group-item">{{ cr }}</a>
+        </div>
+
+      </div>
+
+      <!-- Viewing Dataset As a Table-->
+      <div class="col-md-6">
+        <div style="border: 1px yellow solid; background-color: white; opacity: 0.8;">
+          <h2>Details of Dataset</h2>
+          <p>{{ fullfile }} </p>
+        </div>
+        <br />
+        <button onclick="displayDataset()" class="btn btn-primary">View Dataset</button>
+        <br />
+        <br />
+        <div id="myDIV" style="background-color: yellow; width: 1500px;">
+          {{ dfplot.to_html(classes="table table-hover",na_rep="-") | safe}}
+        </div>
+
+        <input type="image"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS8f8vqHDeWuIqxdAdp6dDzx5Nvt3R0iFWWSIbe8KsuuKMEd39O"
+          class="open-button hidden-xs" onclick="openForm()" height="90px" />
+
+        <div class="chat-popup" id="myForm">
+          <form action="/action_page.php" class="form-container">
+
+            <iframe allow="microphone;" width="280" height="400" src="http://localhost:2000/">
+            </iframe>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+          </form>
+        </div>
+
+
+      </div>
+
+
+    </div>
+
+
+  </div>
+</body>
+
+
+{% endblock %}
+
+<!-- Main External 3-Party JS Is Here -->
+
+{% block scripts %}
+
+{{ super() }}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!-- Function for Displaying Table -->
+<script>
+  function displayDataset() {
+    var x = document.getElementById("myDIV");
+    if (x.style.display === "none") {
+      x.style.display = "block";
+    } else {
+      x.style.display = "none";
+    }
+  }
+
+  function openForm() {
+    document.getElementById("myForm").style.display = "block";
+  }
+
+  function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+  }
+</script>
+
+
+
+{% endblock%}

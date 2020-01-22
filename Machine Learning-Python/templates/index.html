@@ -1,0 +1,202 @@
+{%extends "bootstrap/base.html" %}
+
+{% block content %}
+<!-- Main Content Is Here -->
+<!-- Styles for  Loading and Spinning -->
+<style type="text/css">
+  body {
+    font: 15px/1.5 Arial, Helvetica, sans-serif;
+  }
+
+  /* Button used to open the chat form - fixed at the bottom of the page */
+  .open-button {
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    opacity: 0.8;
+    position: fixed;
+    bottom: 23px;
+    right: 28px;
+    width: 110px;
+    border-radius: 100%;
+  }
+
+
+  /* The popup chat - hidden by default */
+  .chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    right: 15px;
+    border: 3px solid #f1f1f1;
+    z-index: 9;
+  }
+
+  /* Add styles to the form container */
+  .form-container {
+    max-width: 300px;
+    padding: 10px;
+    background-color: white;
+  }
+
+  /* Full-width textarea */
+  .form-container textarea {
+    width: 100%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    resize: none;
+    min-height: 200px;
+  }
+
+  /* When the textarea gets focus, do something */
+  .form-container textarea:focus {
+    background-color: #ddd;
+    outline: none;
+  }
+
+  /* Set a style for the submit/send button */
+  .form-container .btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 10px;
+    opacity: 0.8;
+  }
+
+  /* Add a red background color to the cancel button */
+  .form-container .cancel {
+    background-color: red;
+  }
+
+  /* Add some hover effects to buttons */
+  .form-container .btn:hover,
+  .open-button:hover {
+    opacity: 1;
+  }
+
+  .spinner-1:before {
+    content: "";
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 60px;
+    width: 60px;
+    margin-top: -30px;
+    margin-left: -30px;
+    border-radius: 50%;
+    border: 6px solid transparent;
+    border-top-color: #0091EA;
+    animation: spinner 0.7s linear infinite;
+  }
+
+  @keyframes spinner {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  li {
+    background-color: #BDBDBD;
+  }
+
+  li:nth-child(odd) {
+    background-color: #0091EA;
+  }
+</style>
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" href="{{url_for('.static', filename='css/styles.css')}}">
+{% endblock %}
+
+<body
+  background="https://sloanreview.mit.edu/content/uploads/2017/05/AI-DA-Bean-Artificial-Intelligence-Big-Data-Scale-1200.jpg">
+  <!-- Main jumbotron for a primary marketing message or call to action -->
+  <div class="container">
+    <div class="jumbotron" style="opacity: 0.8; transform: translate(0px,20px);">
+      <h1 class="display-3">Simplified MLApp</h1>
+      <p>Simplify Your Machine Learning and Data Exploration</p>
+    </div>
+
+
+    <div class="container">
+      <div class="main">
+        <div class="row">
+          <div class="col-md-8"
+            style="opacity: 0.8; border-radius: 5%; background-image: linear-gradient(90deg, red, yellow);">
+            <h2 style="color:#fff">Upload Your Dataset</h2>
+            <p style="color:#fff">We only accept csv format numerical data</p>
+            <h1>{{ error }}</h1>
+            <form method=POST enctype=multipart/form-data action="{{ url_for('dataupload') }}" class="form-group">
+              <div class="form-group">
+                <input type="file" name="csv_data" class="btn btn-warning">
+                <br />
+              </div>
+
+              <input type="submit" onclick="myAnalyser()" class="btn btn-primary mb-2">
+              <input type="reset" value="Reset" class="btn btn-danger mb-2">
+            </form>
+            <br />
+          </div>
+        </div>
+        <input type="image"
+          src="https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcS8f8vqHDeWuIqxdAdp6dDzx5Nvt3R0iFWWSIbe8KsuuKMEd39O"
+          class="open-button  hidden-xs" onclick="openForm()" height="90px" />
+        <div class="chat-popup" id="myForm">
+          <form action="/action_page.php" class="form-container">
+
+            <iframe allow="microphone;" width="280" height="400" src="http://localhost:2000/">
+            </iframe>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+
+
+{% endblock %}
+
+<!-- Main External 3-Party JS Is Here -->
+
+{% block scripts %}
+
+{{ super() }}
+<!-- Function to Show Spinning  -->
+<script>
+  function myAnalyser() {
+    document.querySelector('.main div').style.display = 'none';
+    //Hide the main division
+    document.querySelector('.main').classList.add('spinner-1');
+    // Server request
+    setTimeout(() => {
+      document.querySelector('.main').classList.remove('spinner-1');
+      //Remove the animation
+      document.querySelector('.main div').style.display = 'block';
+      //Show the main division
+    }, 5000);//Number of seconds to last
+
+  }
+
+  
+
+  function openForm() {
+    document.getElementById("myForm").style.display = "block";
+  }
+
+  function closeForm() {
+    document.getElementById("myForm").style.display = "none";
+  }
+</script>
+
+
+{% endblock%}
